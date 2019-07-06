@@ -1,4 +1,5 @@
 var keys = require("./keys.js");
+var moment = require("moment");
 // var Spotify = require("node-spotify-api");
 // var spotify = new Spotify(keys.spotify);
 var axios = require("axios");
@@ -64,10 +65,17 @@ function getMyBands(artist) {
     "/events?app_id=95a3a5a0a600d61d0387aa74942b77e2";
   axios.get(concertURL).then(function(response) {
     console.log(response);
-    var jsonData = response.data;
-    var concertData = ["venue: " + jsonData.venue];
+
+    var jsonData = response.data[0];
+    var concertTime = jsonData.datetime;
+    var concertData = [
+      "venue: " + jsonData.venue.name,
+      "location:" + jsonData.venue.city,
+      "Time of Event: " + moment(concertTime).format("MM/DD/YYYY h:mm:ss a")
+    ];
     console.log(concertData);
   });
 }
+
 startProgram(arg1, arg2);
 // module.exports = movieThis;
