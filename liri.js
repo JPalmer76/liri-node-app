@@ -1,11 +1,12 @@
-var keys = require("./keys.js");
 var moment = require("moment");
-// var Spotify = require("node-spotify-api");
-// var spotify = new Spotify(keys.spotify);
+var fs = require("fs");
+var dot = require("dotenv").config();
+var divider =
+  "\n------------------------------------------------------------\n\n";
 var axios = require("axios");
 // var movieThis = require("./movie-this.js");
 var arg1 = process.argv[2];
-var arg2 = process.argv[3];
+var arg2 = process.argv.slice(3).join(" ");
 
 var startProgram = function(arg1, arg2) {
   switch (arg1) {
@@ -19,7 +20,7 @@ var startProgram = function(arg1, arg2) {
       getSongInfo(arg2);
       break;
     case "do-what-it-says":
-      getWhatItSays(arg2);
+      doWhatItSays(arg2);
       break;
     default:
       console.log("Enter the right action");
@@ -41,12 +42,14 @@ function getMovieInfo(movieName) {
     .then(function(response) {
       var jsonData = response.data;
       var movieData = [
+        divider,
         "Title: " + jsonData.Title,
         "Year: " + jsonData.Year,
         "Country: " + jsonData.Country,
         "Language: " + jsonData.Language,
         "Plot: " + jsonData.Plot,
-        "Actors: " + jsonData.Actors
+        "Actors: " + jsonData.Actors,
+        divider
       ].join("\n\n");
       console.log(movieData);
     })
@@ -69,11 +72,66 @@ function getMyBands(artist) {
     var jsonData = response.data[0];
     var concertTime = jsonData.datetime;
     var concertData = [
+      divider,
       "venue: " + jsonData.venue.name,
       "location:" + jsonData.venue.city,
-      "Time of Event: " + moment(concertTime).format("MM/DD/YYYY h:mm:ss a")
-    ];
+      "Time of Event: " + moment(concertTime).format("MM/DD/YYYY h:mm:ss a"),
+      divider
+    ].join("\n\n");
     console.log(concertData);
+  });
+}
+function getSongInfo(arg2) {
+  var Spotify = require("node-spotify-api");
+  var track = arg2;
+  var spotify = new Spotify({
+    id: "472d177e87ba47d0b246e8c40fc83393",
+    secret: "eeb3419e5870440d889b3161870e9e24"
+  });
+
+  spotify
+    .search({ type: "track", query: track, limit: 1 })
+    .then(function(response) {
+      console.log(response);
+      var response = response.tracks.items[0];
+      var musicData = [
+        divider,
+        "Album Name: " + response.album.name,
+        "Song Name: " + response.name,
+        "Artist Name: " + response.artists[0].name,
+        "Preview Link: " + response.external_urls.spotify,
+        divider
+      ].join("\n\n");
+      console.log(musicData);
+    })
+    .catch(function(error) {
+      console.log(error);
+      getSongInfo("The Sign Ace of Base");
+    });
+}
+
+// Do-What-It-Says
+function doWhatItSays() {
+  fs.readFile("random.txt", "utf8", function(err, data) {
+    if (err) {
+      return console.log(err);
+    }
+
+    var dataArr = data.split(",");
+    var action = dataArr[0];
+    var query = dataArr[1];
+
+    switch (action) {
+      case "spotify-this-song":
+        getSongInfo(query);
+        break;
+      case "concert-this":
+        getMyBands(query);
+        break;
+      case "movie-this":
+        getMovieInfo(query);
+        break;
+    }
   });
 }
 
