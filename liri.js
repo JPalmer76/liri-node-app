@@ -4,10 +4,12 @@ var dot = require("dotenv").config();
 var divider =
   "\n------------------------------------------------------------\n\n";
 var axios = require("axios");
-// var movieThis = require("./movie-this.js");
 var arg1 = process.argv[2];
 var arg2 = process.argv.slice(3).join(" ");
 
+// console.log(dot);
+
+//Start Program function
 var startProgram = function(arg1, arg2) {
   switch (arg1) {
     case "concert-this":
@@ -27,6 +29,7 @@ var startProgram = function(arg1, arg2) {
   }
 };
 
+//Get movie info function
 function getMovieInfo(movieName) {
   console.log("Get Movie");
   if (movieName === undefined) {
@@ -59,6 +62,7 @@ function getMovieInfo(movieName) {
     .finally(function() {});
 }
 
+//Get Bands in town function
 function getMyBands(artist) {
   console.log("Get band info");
 
@@ -81,12 +85,14 @@ function getMyBands(artist) {
     console.log(concertData);
   });
 }
+
+//Get song info function
 function getSongInfo(arg2) {
   var Spotify = require("node-spotify-api");
   var track = arg2;
   var spotify = new Spotify({
-    id: "472d177e87ba47d0b246e8c40fc83393",
-    secret: "eeb3419e5870440d889b3161870e9e24"
+    id: dot.parsed.SPOTIFY_ID,
+    secret: dot.parsed.SPOTIFY_SECRET
   });
 
   spotify
@@ -110,7 +116,7 @@ function getSongInfo(arg2) {
     });
 }
 
-// Do-What-It-Says
+// Do-What-It-Says function
 function doWhatItSays() {
   fs.readFile("random.txt", "utf8", function(err, data) {
     if (err) {
